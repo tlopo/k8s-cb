@@ -37,7 +37,7 @@ template '/opt/etcd/config/etcd.yml' do
   owner user
   group user
   mode '0644'
-  notifies :restart, 'service[etcd]', :delayed
+#  notifies :restart, 'service[etcd]', :delayed
 end
 
 #systemd_unit 'etcd.service'  do 
