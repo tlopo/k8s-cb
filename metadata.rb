@@ -1,4 +1,4 @@
-name 'k8s-cb'
+name 'k8s_cb'
 maintainer 'The Authors'
 maintainer_email 'you@example.com'
 license 'All Rights Reserved'
