@@ -13,7 +13,7 @@ service 'docker' do
   action :enable
 end
 
-
+include_recipe "#{cookbook_name}::x509-certs"
 ########
 
 hostname = node['hostname']
@@ -24,7 +24,6 @@ user='etcd'
 uid='607'
 tls = node['etcd']['tls']
 scheme = tls ? 'https' : 'http'
-include_recipe "#{cookbook_name}::x509-certs"
 etcd_image = 'quay.io/coreos/etcd:v3.3'
 
 user user do 
@@ -93,7 +92,7 @@ end
 
 file '/opt/etcd/etcdctl' do 
   cmd = [ 
-    "sudo docker exec  -i etcd.service ./etcdctl"
+    "sudo docker exec  -i etcd.service etcdctl"
   ]
   if tls 
     cmd << "--cert-file #{cert_dir}/#{hostname}-cert.pem"
