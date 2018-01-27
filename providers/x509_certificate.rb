@@ -1,5 +1,6 @@
 require 'openssl'
 
+provider_name :x509_cert
 def whyrun_supported?
   true
 end
