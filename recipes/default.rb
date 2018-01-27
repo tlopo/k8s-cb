@@ -50,7 +50,7 @@ template '/opt/etcd/config/etcd.yml' do
   owner user
   group user
   mode '0644'
-#  notifies :restart, 'service[etcd]', :delayed
+  notifies :restart, 'service[etcd]', :delayed
 end
 
 systemd_unit 'etcd.service'  do 
@@ -86,9 +86,9 @@ systemd_unit 'etcd.service'  do
   action [:create, :enable]
 end
 
-#service 'etcd' do
-#  action [:start, :enable]
-#end
+service 'etcd' do
+  action [:start, :enable]
+end
 
 file '/opt/etcd/etcdctl' do 
   cmd = [ 
