@@ -3,10 +3,7 @@
 #
 # Copyright:: 2018, The Authors, All Rights Reserved.
 
-execute 'Install docker'  do 
-  command 'curl -fsSL https://get.docker.com/ | sh'
-  not_if 'rpm -qa | grep -q docker'
-end
+yum_package 'docker'
 
 service 'docker'  do 
   action :start
