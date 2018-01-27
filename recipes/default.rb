@@ -3,15 +3,20 @@
 #
 # Copyright:: 2018, The Authors, All Rights Reserved.
 
-docker_installation_package 'default' do 
-  version '17.06.2ce'
-  release '1.102.amzn2'
-  action :create
+execute 'Install docker'  do 
+  command 'curl -fsSL https://get.docker.com/ | sh'
+  not_if 'rpm -qa | grep -q docker'
 end
 
-docker_service 'default'  do 
-  action [:create, :start]
+service 'docker'  do 
+  action :start
 end
+
+service 'docker' do
+  action :enable
+end
+
+
 ########
 
 hostname = node['hostname']
