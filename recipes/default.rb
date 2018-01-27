@@ -45,39 +45,39 @@ template '/opt/etcd/config/etcd.yml' do
 #  notifies :restart, 'service[etcd]', :delayed
 end
 
-#systemd_unit 'etcd.service'  do 
-#  cmd = [
-#    '/usr/bin/docker run --rm',
-#    "-v #{cert_dir}:#{cert_dir}",
-#    '-v /opt/etcd/config/etcd.yml:/opt/etcd/config/etcd.yml',
-#    '-v /opt/etcd/data:/opt/etcd/data',
-#    '-u root --net host --name %n docker-registry.sec.ibm.com/mss-etcd',
-#    '--config-file config/etcd.yml' 
-#  ]
-#  content <<-EOF.gsub(/^ {2}/,'')
-#  [Unit]
-#  Description=Etcd Container
-#  After=docker.service
-#  Requires=docker.service
-#   
-#  [Service]
-#  TimeoutStartSec=0
-#  Restart=always
-#  ExecStartPre=-/usr/bin/docker stop %n
-#  ExecStartPre=-/usr/bin/docker rm %n
-#  ExecStart=#{cmd.join(' ')}
-#
-#  ExecStop=/usr/bin/docker stop %n
-#  Restart=always
-#  RestartSec=10s
-#  NotifyAccess=all
-#  
-#  [Install]
-#  WantedBy=multi-user.target
-#  EOF
-#  action [:create, :enable]
-#end
-#
+systemd_unit 'etcd.service'  do 
+  cmd = [
+    '/usr/bin/docker run --rm',
+    "-v #{cert_dir}:#{cert_dir}",
+    '-v /opt/etcd/config/etcd.yml:/opt/etcd/config/etcd.yml',
+    '-v /opt/etcd/data:/opt/etcd/data',
+    '-u root --net host --name %n docker-registry.sec.ibm.com/mss-etcd',
+    '--config-file config/etcd.yml' 
+  ]
+  content <<-EOF.gsub(/^ {2}/,'')
+  [Unit]
+  Description=Etcd Container
+  After=docker.service
+  Requires=docker.service
+   
+  [Service]
+  TimeoutStartSec=0
+  Restart=always
+  ExecStartPre=-/usr/bin/docker stop %n
+  ExecStartPre=-/usr/bin/docker rm %n
+  ExecStart=#{cmd.join(' ')}
+
+  ExecStop=/usr/bin/docker stop %n
+  Restart=always
+  RestartSec=10s
+  NotifyAccess=all
+  
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  action [:create, :enable]
+end
+
 #service 'etcd' do
 #  action [:start, :enable]
 #end
