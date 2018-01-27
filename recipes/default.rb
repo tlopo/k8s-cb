@@ -32,7 +32,7 @@ file "#{cert_dir}/ca-cert.pem" do
   mode '0644'
 end
 
-x509_certificate 'node' do
+k8s-cb::x509_certificate 'node' do
   action [:create, :update]
   ca_cert ca_cert
   ca_key  ca_key
