@@ -61,7 +61,7 @@ systemd_unit 'etcd.service'  do
     '-v /opt/etcd/config/etcd.yml:/opt/etcd/config/etcd.yml',
     '-v /opt/etcd/data:/opt/etcd/data',
     "-u root --net host --name %n #{etcd_image}",
-    '--config-file config/etcd.yml' 
+    '--config-file /opt/etcd/config/etcd.yml' 
   ]
   content <<-EOF.gsub(/^ {2}/,'')
   [Unit]
