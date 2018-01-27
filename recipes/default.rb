@@ -1,5 +1,4 @@
-#
-# Cookbook:: k8s-cb
+# Cookbook:: k8s_cb
 # Recipe:: default
 #
 # Copyright:: 2018, The Authors, All Rights Reserved.
@@ -7,41 +6,94 @@
 hostname = node['hostname']
 ip = node['ipaddress']
 cert_dir = node['cert_dir']
-ca_cert = Base64.decode64 node['ca-cert']
-ca_key = Base64.decode64 node['ca-key']
 
+user='etcd'
+uid='607'
+tls = node['etcd']['tls']
+scheme = tls ? 'https' : 'http'
+include_recipe "#{cookbook_name}::x509-certs"
 
-key_usage = 'nonRepudiation, digitalSignature, keyEncipherment'
-basic_constraints = 'CA:FALSE'
-subject = "/CN=#{hostname}"
-min_validity = 30 * 24 * 60 * 60 # 30 days
-subject_alt_name = "IP:127.0.0.1,IP:#{ip},DNS:localhost,DNS:#{hostname}"
+user user do 
+  uid uid
+  shell '/bin/false'
+end
 
-
-directory "#{cert_dir}" do 
+directory '/opt/etcd/data' do
   recursive true
   owner user
   group user
   mode '0755'
 end
 
-file "#{cert_dir}/ca-cert.pem" do 
-  content ca_cert
+directory '/opt/etcd/config' do
+  recursive true
+  owner user
+  group user
+  mode '0755'
+end
+
+template '/opt/etcd/config/etcd.yml' do 
+  source 'etcd.yml.erb'
   owner user
   group user
   mode '0644'
+  notifies :restart, 'service[etcd]', :delayed
 end
 
-k8s_cb_x509_certificate 'node' do
-  action [:create, :update]
-  ca_cert ca_cert
-  ca_key  ca_key
-  cert_dst "#{cert_dir}/#{hostname}-cert.pem"
-  key_dst "#{cert_dir}/#{hostname}-key.pem"
-  subject subject
-  basic_constraints basic_constraints
-  key_usage key_usage
-  subject_alt_name subject_alt_name
-  min_validity min_validity
+systemd_unit 'etcd.service'  do 
+  cmd = [
+    '/usr/bin/docker run --rm',
+    "-v #{cert_dir}:#{cert_dir}",
+    '-v /opt/etcd/config/etcd.yml:/opt/etcd/config/etcd.yml',
+    '-v /opt/etcd/data:/opt/etcd/data',
+    '-u root --net host --name %n docker-registry.sec.ibm.com/mss-etcd',
+    '--config-file config/etcd.yml' 
+  ]
+  content <<-EOF.gsub(/^ {2}/,'')
+  [Unit]
+  Description=Etcd Container
+  After=docker.service
+  Requires=docker.service
+   
+  [Service]
+  TimeoutStartSec=0
+  Restart=always
+  ExecStartPre=-/usr/bin/docker stop %n
+  ExecStartPre=-/usr/bin/docker rm %n
+  ExecStart=#{cmd.join(' ')}
+
+  ExecStop=/usr/bin/docker stop %n
+  Restart=always
+  RestartSec=10s
+  NotifyAccess=all
+  
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  action [:create, :enable]
+end
+
+service 'etcd' do
+  action [:start, :enable]
+end
+
+file '/opt/etcd/etcdctl' do 
+  cmd = [ 
+    "sudo docker exec  -i etcd.service ./etcdctl"
+  ]
+  if tls 
+    cmd << "--cert-file #{cert_dir}/#{hostname}-cert.pem"
+    cmd << "--key-file #{cert_dir}/#{hostname}-key.pem"
+    cmd << "--ca-file #{cert_dir}/ca-cert.pem"
+  end
+  cmd << "--endpoint #{scheme}://127.0.0.1:2379"
+  cmd << '$@'
+  content <<-EOC.gsub(/^\s+/,'')
+    #! /bin/bash
+    #{cmd.join(' ')}
+  EOC
+  owner user
+  group user
+  mode '0755'
 end
 

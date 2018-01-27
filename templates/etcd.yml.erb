@@ -1,0 +1,35 @@
+<%-
+  tls = node['etcd']['tls']
+  cert_dir = node['cert_dir']
+  ip = node['ipaddress']
+  servers = node['etcd']['servers']
+  name =  node['hostname']
+  scheme = tls ? 'https' : 'http'
+  initial_cluster = servers.keys.map{|k| "#{k}=#{scheme}://#{servers[k]}:2380"}.join(',')
+  cert = "#{cert_dir}/#{name}-cert.pem"
+  key = "#{cert_dir}/#{name}-key.pem"
+  ca_cert = "#{cert_dir}/ca-cert.pem"
+-%>
+name: <%=name%>
+data-dir: /opt/etcd/data
+listen-client-urls: <%=scheme%>://0.0.0.0:2379
+advertise-client-urls: <%=scheme%>://<%=ip%>:2379
+listen-peer-urls: <%=scheme%>://0.0.0.0:2380
+initial-cluster: <%=initial_cluster%>
+initial-cluster-token: mytoken
+initial-cluster-state: new
+initial-advertise-peer-urls: <%=scheme%>://<%=ip%>:2380
+election-timeout: 1000
+heartbeat-interval: 100
+debug: true
+<%-if tls-%>
+client-transport-security: 
+  cert-file: <%=cert%>
+  key-file: <%=key%>
+  trusted-ca-file: <%=ca_cert%>
+peer-transport-security: 
+  cert-file: <%=cert%>
+  key-file: <%=key%>
+  trusted-ca-file: <%=ca_cert%>
+<%-end-%>
+
