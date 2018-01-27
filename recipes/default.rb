@@ -5,6 +5,7 @@
 
 docker_installation_package 'default' do 
   version '17.06.2ce'
+  release '1.102.amzn2'
   action :create
 end
 
