@@ -25,6 +25,7 @@ uid='607'
 tls = node['etcd']['tls']
 scheme = tls ? 'https' : 'http'
 include_recipe "#{cookbook_name}::x509-certs"
+etcd_image = 'quay.io/coreos/etcd:v3.3'
 
 user user do 
   uid uid
@@ -59,7 +60,7 @@ systemd_unit 'etcd.service'  do
     "-v #{cert_dir}:#{cert_dir}",
     '-v /opt/etcd/config/etcd.yml:/opt/etcd/config/etcd.yml',
     '-v /opt/etcd/data:/opt/etcd/data',
-    '-u root --net host --name %n docker-registry.sec.ibm.com/mss-etcd',
+    "-u root --net host --name %n #{etcd_image}",
     '--config-file config/etcd.yml' 
   ]
   content <<-EOF.gsub(/^ {2}/,'')
