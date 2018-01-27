@@ -3,6 +3,11 @@
 #
 # Copyright:: 2018, The Authors, All Rights Reserved.
 
+docker_installation_package 'default' do 
+  version '17.06.2ce'
+  action :create
+end
+
 docker_service 'default'  do 
   action [:create, :start]
 end
