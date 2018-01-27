@@ -3,6 +3,11 @@
 #
 # Copyright:: 2018, The Authors, All Rights Reserved.
 
+docker_service 'default'  do 
+  action [:create, :start]
+end
+########
+
 hostname = node['hostname']
 ip = node['ipaddress']
 cert_dir = node['cert_dir']
