@@ -1,3 +1,5 @@
+resource_name :x509_cert
+
 actions :create, :delete, :update
 default_action :create
 

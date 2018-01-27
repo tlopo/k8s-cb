@@ -1,5 +1,5 @@
 require 'openssl'
-resource_name :x509_cert
+
 def whyrun_supported?
   true
 end
