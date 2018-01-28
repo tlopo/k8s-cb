@@ -118,3 +118,7 @@ systemd_unit 'kubelet.service'  do
   action [:create, :enable]
 end
 
+service 'kubelet' do
+  action [:start, :enable]
+end
+
