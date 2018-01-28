@@ -1,3 +1,26 @@
+user = 'root'
+group = 'root'
+ip = node['ipaddress']
+hostname = node['hostname']
+cert_dir = node['cert_dir']
+k8s_node_binaries_url = 'https://dl.k8s.io/v1.9.2/kubernetes-node-linux-amd64.tar.gz'
+k8s_binary_dir = '/opt/kubernetes/bin'
+kubeconfig = '/opt/kubernetes/kubeconfig'
+etcd_tls = node['etcd']['tls']
+etcd_scheme = etcd_tls ? 'https' : 'http'
+etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
+
+master_vip = node['kubernetes']['master_vip'] 
+cluster_service_ip_range = node['kubernetes']['cluster_service_ip_range']
+network_driver = node['network']['driver']
+cluster_domain = node['kubernetes']['cluster_domain']
+cluster_dns = node['kubernetes']['cluster_dns']
+ha_minions = node['kubernetes']['minion-ha']
+is_ha_minion = false
+ha_minions.each_key {|k| is_ha_minion = true if ha_minions[k] == ip}
+
+include_recipe "#{cookbook_name}::calico" if network_driver == 'calico'
+
 directory k8s_binary_dir do
   recursive true
   user user
