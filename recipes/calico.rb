@@ -12,6 +12,10 @@ ip_in_ip_mtu = node['calico']['ip_in_ip_mtu']
 ip_in_ip_mode = node['calico']['ip_in_ip_mode']
 ip_pool = node['calico']['network']
 
+etcd_tls = node['etcd']['tls']
+etcd_scheme = etcd_tls ? 'https' : 'http'
+etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
+
 cni_bin_dir = '/opt/cni/bin/calico'
 bin = {
   calico: {
