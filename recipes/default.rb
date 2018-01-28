@@ -129,7 +129,6 @@ end
 systemd_unit 'kube-proxy.service'  do
   cmd = [
     '/opt/kubernetes/bin/kube-proxy',
-    "--master=#{api_servers}",
     '--proxy-mode=iptables',
     '--kubeconfig /opt/kubernetes/kubeconfig'
   ]
