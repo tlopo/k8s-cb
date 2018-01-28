@@ -44,11 +44,15 @@ bin = {
   },
   calico_ipam: {
     src: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico-ipam',
-    dst: "#{cni_bin_dir}/calico_ipam"
+    dst: "#{cni_bin_dir}/calico-ipam"
   },
   cni: {
     src: 'https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz',
     dst: "#{cni_bin_dir}/cni-v0.3.0.tgz"
+  },
+  calico_ctl: {
+    src: 'https://github.com/projectcalico/calicoctl/releases/download/v2.0.0/calicoctl',
+    dst: '/opt/calico/bin/calicoctl'
   }
 }
 
