@@ -90,7 +90,7 @@ systemd_unit 'kubelet.service'  do
 
   cmd << '--node-labels=ha-minion=true' if is_ha_minion
 
-  if net_driver == 'calico'
+  if network_driver == 'calico'
     cmd << '--network-plugin=cni'
     cmd << '--cni-conf-dir=/etc/cni/net.d'
     cmd << '--cni-bin-dir=/opt/cni/bin'
