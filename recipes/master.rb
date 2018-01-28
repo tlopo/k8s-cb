@@ -1,6 +1,20 @@
-# Cookbook:: k8s_cb
-# Recipe:: default
-# Copyright:: 2018, The Authors, All Rights Reserved.
+user = 'root'
+group = 'root'
+ip = node['ipaddress']
+hostname = node['hostname']
+cert_dir = node['cert_dir']
+
+k8s_node_binaries_url = 'https://dl.k8s.io/v1.9.2/kubernetes-node-linux-amd64.tar.gz'
+k8s_binary_dir = '/opt/kubernetes/bin'
+kubeconfig = '/opt/kubernetes/kubeconfig'
+
+hyperkube_image = 'gcr.io/google_containers/hyperkube-amd64:v1.9.2'
+master_vip = node['kubernetes']['master_vip'] 
+cluster_service_ip_range = node['kubernetes']['cluster_service_ip_range']
+
+etcd_tls = node['etcd']['tls']
+etcd_scheme = etcd_tls ? 'https' : 'http'
+etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
 
 directory k8s_binary_dir do
   recursive true
