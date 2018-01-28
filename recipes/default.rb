@@ -38,7 +38,7 @@ ha_minions.each_key {|k| is_ha_minion = true if ha_minions[k] == ip}
 
 ip_in_ip_mtu = node['calico']['ip_in_ip_mtu']
 ip_in_ip_mode = node['calico']['ip_in_ip_mode']
-
+ip_pool = node['calico']['network']
 
 cni_bin_dir = '/opt/cni/bin/calico'
 bin = {
