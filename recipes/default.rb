@@ -18,6 +18,7 @@ user = 'root'
 group = 'root'
 ip = node['ipaddress']
 hostname = node['hostname']
+cert_dir = node['cert_dir']
 ########
 
 k8s_node_binaries_url = 'https://dl.k8s.io/v1.9.2/kubernetes-node-linux-amd64.tar.gz'
