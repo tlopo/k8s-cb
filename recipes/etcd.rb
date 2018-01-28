@@ -77,7 +77,7 @@ file '/opt/etcd/etcdctl' do
   cmd = [ 
     "sudo docker exec  -i etcd.service etcdctl"
   ]
-  if tls 
+  if etcd_tls 
     cmd << "--cert-file #{cert_dir}/#{hostname}-cert.pem"
     cmd << "--key-file #{cert_dir}/#{hostname}-key.pem"
     cmd << "--ca-file #{cert_dir}/ca-cert.pem"
