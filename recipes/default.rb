@@ -1,6 +1,5 @@
 # Cookbook:: k8s_cb
 # Recipe:: default
-#
 # Copyright:: 2018, The Authors, All Rights Reserved.
 
 yum_package 'docker'
