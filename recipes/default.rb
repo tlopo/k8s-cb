@@ -26,6 +26,8 @@ kubeconfig = '/opt/kubernetes/kubeconfig'
 image = 'gcr.io/google_containers/hyperkube-amd64:v1.9.2'
 master_vip = node['kubernetes']['master_vip'] 
 cluster_service_ip_range = node['kubernetes']['cluster_service_ip_range']
+etcd_tls = node['etcd']['tls']
+etcd_scheme = etcd_tls ? 'https' : 'http'
 etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
 
 
