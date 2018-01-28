@@ -8,7 +8,7 @@ ip = node['ipaddress']
 cert_dir = node['cert_dir']
 ca_cert = Base64.decode64 node['ca-cert']
 ca_key = Base64.decode64 node['ca-key']
-
+serviceaccount_key = Base64.decode64 node['serviceaccount-key']
 
 key_usage = 'nonRepudiation, digitalSignature, keyEncipherment'
 basic_constraints = 'CA:FALSE'
@@ -44,3 +44,9 @@ k8s_cb_x509_certificate 'node' do
   min_validity min_validity
 end
 
+file "#{cert_dir}/serviceaccount-key.pem" do
+  content serviceaccount_key
+  owner user
+  group user
+  mode '0644'
+end
