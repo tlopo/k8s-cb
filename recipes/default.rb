@@ -37,10 +37,19 @@ is_ha_minion = false
 ha_minions.each_key {|k| is_ha_minion = true if ha_minions[k] == ip}
 
 cni_bin_dir = '/opt/cni/bin/calico'
-cni_bin = {
-  calico: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico',
-  calico_ipam: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico-ipam',
-  cni: 'https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz'
+bin = {
+  calico: {
+    src: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico',
+    dst: "#{cni_bin_dir}/calico"
+  },
+  calico_ipam: {
+    src: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico-ipam',
+    dst: "#{cni_bin_dir}/calico_ipam"
+  },
+  cni: {
+    src: 'https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz',
+    dst: "#{cni_bin_dir}/cni-v0.3.0.tgz"
+  }
 }
 
 
@@ -76,16 +85,18 @@ template "#{kubeconfig}" do
   mode '0644'
 end
 
-directory cni_bin_dir  do
-  recursive true
-  owner user
-  group user
-  mode '0755'
+bin.each_key do |k|
+  directory "#{::File.dirname bin[k][dst]}"  do
+    recursive true
+    owner user
+    group user
+    mode '0755'
+  end
 end
 
-cni_bin.each_key do |k|
-  remote_file "#{cni_bin_dir}/#{::File.basename cni_bin[k]}" do
-    source cni_bin[k]
+bin.each_key do |k|
+  remote_file bin[k][:dst] do
+    source bin[k][:src]
   end
 end
 
@@ -100,4 +111,6 @@ directory '/etc/cni/net.d' do
   group user
   mode '0755'
 end
+
+
 
