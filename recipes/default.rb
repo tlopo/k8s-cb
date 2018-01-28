@@ -15,12 +15,12 @@ etcd_servers = node['etcd']['servers']
 masters = node['kubernetes']['master']
 minions = node['kubernetes']['minion']
 
-#etcd_servers.keys.each {|k| is_etcd = true if etcd_servers[k] == ip}
-#masters.keys.each {|k| is_master = true if masters[k] == ip}
-#minions.keys.each {|k| is_minion = true if minions[k] == ip}
+etcd_servers.keys.each {|k| is_etcd = true if etcd_servers[k] == ip}
+masters.keys.each {|k| is_master = true if masters[k] == ip}
+minions.keys.each {|k| is_minion = true if minions[k] == ip}
 
 unless is_etcd or is_master or is_minion
-  Chef::Log.warn "#{hostname} does not belong to none of this groups [minion, master, etcd]"
+  Chef::Log.warn "#{hostname} does not belong to any of the following groups [minion, master, etcd]"
   return 
 end
 
