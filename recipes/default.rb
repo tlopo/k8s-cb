@@ -110,3 +110,7 @@ systemd_unit 'kube-apiserver.service'  do
   notifies :restart, 'service[kube-apiserver]', :delayed
   action [:create, :enable]
 end
+
+service 'kube-apiserver' do
+  action [:start, :enable]
+end
