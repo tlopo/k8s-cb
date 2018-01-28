@@ -90,7 +90,7 @@ cni_bin.each_key do |k|
 end
 
 execute 'extract cni loopback' do
-  command "tar xvzf cni-v0.3.0.tgz -C #{cni_bin_dir} ./loopback"
+  command %Q[tar xvzf "#{cni_bin_dir}/#{::File.basename cni_bin['cni']}" -C #{cni_bin_dir} ./loopback]
   not_if { ::File.exists? "#{cni_bin_dir}/loopback" }
 end
 
