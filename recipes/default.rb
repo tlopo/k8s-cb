@@ -122,3 +122,39 @@ service 'kubelet' do
   action [:start, :enable]
 end
 
+service 'kubelet' do
+  action [:start, :enable]
+end
+
+systemd_unit 'kube-proxy.service'  do
+  cmd = [
+    '/opt/kubernetes/bin/kube-proxy',
+    "--master=#{api_servers}",
+    '--proxy-mode=iptables',
+    '--kubeconfig /opt/kubernetes/kubeconfig'
+  ]
+  content <<-EOF.gsub(/^  /,'')
+  [Unit]
+  Description=Kube-proxy
+  After=docker.service
+  Requires=docker.service
+   
+  [Service]
+  TimeoutStartSec=0
+  Restart=always
+  ExecStart=#{cmd.join(' ')}
+  ExecStop=/bin/kill $MAINPID
+  Restart=always
+  RestartSec=10s
+  NotifyAccess=all
+  
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  notifies :restart, 'service[kube-proxy]', :delayed
+  action [:create, :enable]
+end
+
+service 'kube-proxy' do
+  action [:start, :enable]
+end
