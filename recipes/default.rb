@@ -35,6 +35,6 @@ end
 execute 'extract_kubectl' do
   file = "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" 
   command = "tar -xvzf #{file} -C #{k8s_binary_dir} kubernetes/node/bin/kubectl --xform='s,.*/,,'"
-  not if { ::File.exists? "#{k8s_binary_dir}/kubectl" }
+  not_if { ::File.exists? "#{k8s_binary_dir}/kubectl" }
 end
 
