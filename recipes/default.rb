@@ -37,3 +37,4 @@ end
 include_recipe "#{cookbook_name}::x509-certs"
 include_recipe "#{cookbook_name}::etcd" if is_etcd
 include_recipe "#{cookbook_name}::master" if is_master
+include_recipe "#{cookbook_name}::master" if is_minion
