@@ -2,35 +2,6 @@
 # Recipe:: default
 # Copyright:: 2018, The Authors, All Rights Reserved.
 
-yum_package 'docker'
-
-service 'docker'  do 
-  action :start
-end
-
-service 'docker' do
-  action :enable
-end
-
-include_recipe "#{cookbook_name}::x509-certs"
-user = 'root'
-group = 'root'
-ip = node['ipaddress']
-hostname = node['hostname']
-cert_dir = node['cert_dir']
-########
-
-k8s_node_binaries_url = 'https://dl.k8s.io/v1.9.2/kubernetes-node-linux-amd64.tar.gz'
-k8s_binary_dir = '/opt/kubernetes/bin'
-kubeconfig = '/opt/kubernetes/kubeconfig'
-image = 'gcr.io/google_containers/hyperkube-amd64:v1.9.2'
-master_vip = node['kubernetes']['master_vip'] 
-cluster_service_ip_range = node['kubernetes']['cluster_service_ip_range']
-etcd_tls = node['etcd']['tls']
-etcd_scheme = etcd_tls ? 'https' : 'http'
-etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
-
-
 directory k8s_binary_dir do
   recursive true
   user user
@@ -70,7 +41,7 @@ systemd_unit 'kube-apiserver.service'  do
   cmd = [
         '/usr/bin/docker run --rm',
         "-v #{cert_dir}:#{cert_dir}",
-        "--net host --name %n #{image} kube-apiserver",
+        "--net host --name %n #{hyperkube_image} kube-apiserver",
         '--insecure-port=8080',
         '--insecure-bind-address=127.0.0.1',
         "--advertise-address=#{master_vip}",
@@ -135,7 +106,7 @@ systemd_unit 'kube-scheduler.service'  do
   ExecStart=/usr/bin/docker run --rm\
         -v #{cert_dir}:#{cert_dir} \
         -v #{kubeconfig}:#{kubeconfig}\
-        --net host --name %n #{image} kube-scheduler\
+        --net host --name %n #{hyperkube_image} kube-scheduler\
         --kubeconfig=#{kubeconfig} --leader-elect
 
   ExecStop=/usr/bin/docker stop %n
@@ -169,7 +140,7 @@ systemd_unit 'kube-controller-manager.service'  do
   ExecStart=/usr/bin/docker run --rm \
         -v #{cert_dir}:#{cert_dir} \
         -v #{kubeconfig}:#{kubeconfig}\
-        --net host --name %n #{image} kube-controller-manager \
+        --net host --name %n #{hyperkube_image} kube-controller-manager \
         --root-ca-file=#{cert_dir}/ca-cert.pem \
         --service_account_private_key_file=#{cert_dir}/serviceaccount-key.pem \
         --kubeconfig=/opt/kubernetes/kubeconfig --leader-elect

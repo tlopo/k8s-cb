@@ -1,13 +1,3 @@
-hostname = node['hostname']
-ip = node['ipaddress']
-cert_dir = node['cert_dir']
-
-user='etcd'
-uid='607'
-tls = node['etcd']['tls']
-scheme = tls ? 'https' : 'http'
-etcd_image = 'quay.io/coreos/etcd:v3.3'
-
 user user do 
   uid uid
   shell '/bin/false'
@@ -81,7 +71,7 @@ file '/opt/etcd/etcdctl' do
     cmd << "--key-file #{cert_dir}/#{hostname}-key.pem"
     cmd << "--ca-file #{cert_dir}/ca-cert.pem"
   end
-  cmd << "--endpoint #{scheme}://127.0.0.1:2379"
+  cmd << "--endpoint #{etcd_scheme}://127.0.0.1:2379"
   cmd << '$@'
   content <<-EOC.gsub(/^\s+/,'')
     #! /bin/bash
