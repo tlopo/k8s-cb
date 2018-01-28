@@ -1,3 +1,14 @@
+user = 'root'
+group = 'root'
+ip = node['ipaddress']
+hostname = node['hostname']
+cert_dir = node['cert_dir']
+
+etcd_image = 'quay.io/coreos/etcd:v3.3'
+etcd_tls = node['etcd']['tls']
+etcd_scheme = etcd_tls ? 'https' : 'http'
+etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
+
 user user do 
   uid uid
   shell '/bin/false'
