@@ -28,7 +28,7 @@ directory k8s_binary_dir do
   mode '0755'
 end
 
-remote_file ::File.basename(k8s_node_binaries_url) do 
+remote_file "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" do 
   source k8s_node_binaries_url
 end
 
