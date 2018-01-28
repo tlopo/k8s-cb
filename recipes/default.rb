@@ -89,6 +89,15 @@ cni_bin.each_key do |k|
   end
 end
 
+execute 'extract cni loopback' do
+  command "tar xvzf cni-v0.3.0.tgz -C #{cni_bin_dir} ./loopback"
+  not_if { ::File.exists? "#{cni_bin_dir}/loopback" }
+end
 
-
+directory '/etc/cni/net.d' do
+  recursive true
+  owner user
+  group user
+  mode '0755'
+end
 
