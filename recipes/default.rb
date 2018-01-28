@@ -109,13 +109,14 @@ execute 'extract cni loopback' do
   not_if { ::File.exists? "#{cni_bin_dir}/loopback" }
 end
 
-directory '/etc/cni/net.d' do
-  recursive true
-  owner user
-  group user
-  mode '0755'
+['/etc/cni/net.d','/etc/calico'].each do |dir|
+  directory "#{dir}" do
+    recursive true
+    owner user
+    group user
+    mode '0755'
+  end
 end
-
 
 file '/etc/calico/calicoctl.cfg' do
   lines = [
