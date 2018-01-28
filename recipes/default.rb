@@ -138,3 +138,63 @@ file '/etc/calico/calicoctl.cfg' do
   group user
   mode '0644'
 end
+
+systemd_unit 'calico.service'  do
+  cmd = [
+    '/usr/bin/docker run --net=host --privileged --name=calico-node',
+    "--rm -e NODENAME=#{hostname}",
+    "-e FELIX_IPV6SUPPORT=false -e IP=#{ip}",
+    '-e FELIX_DEFAULTENDPOINTTOHOSTACTION=ACCEPT',
+    "-e FELIX_IPINIPMTU=#{ip_in_ip_mtu}",
+    "-e CALICO_IPV4POOL_CIDR=#{ip_pool}",
+    "-e CALICO_IPV4POOL_IPIP=#{ip_in_ip_mode}",
+    '-e CALICO_NETWORKING_BACKEND=bird -e CALICO_LIBNETWORK_ENABLED=true',
+    "-e CALICO_K8S_NODE_REF=#{hostname}",
+    '-e CLUSTER_TYPE=k8s,bgp',
+    '-v /var/log/calico:/var/log/calico',
+    '-v /var/run/calico:/var/run/calico',
+    '-v /lib/modules:/lib/modules',
+    '-v /run:/run -v /run/docker/plugins:/run/docker/plugins',
+    '-v /var/run/docker.sock:/var/run/docker.sock',
+    "-v #{cert_dir}/ca-cert.pem:/etc/calico/certs/ca_cert.crt",
+    "-v #{cert_dir}/#{hostname}-key.pem:/etc/calico/certs/key.pem",
+    "-v #{cert_dir}/#{hostname}-cert.pem:/etc/calico/certs/cert.crt"
+  ]
+
+  if etcd_tls
+    cmd << '-e ETCD_CA_CERT_FILE=/etc/calico/certs/ca_cert.crt'
+    cmd << '-e ETCD_KEY_FILE=/etc/calico/certs/key.pem'
+    cmd << '-e ETCD_CERT_FILE=/etc/calico/certs/cert.crt'
+  end
+
+  cmd << "-e ETCD_ENDPOINTS=#{etcd_servers}"
+  cmd << 'quay.io/calico/node:v3.0.1'
+
+  content <<-EOF.gsub(/^  /,'')
+  [Unit]
+  Description=Calico Node
+  After=docker.service
+  Requires=docker.service
+   
+  [Service]
+  TimeoutStartSec=0
+  Restart=always
+  ExecStartPre=-/usr/bin/docker stop %n
+  ExecStartPre=-/usr/bin/docker rm %n
+  ExecStart=#{cmd.join(' ')}
+
+  ExecStop=/usr/bin/docker stop %n
+  Restart=always
+  RestartSec=10s
+  NotifyAccess=all
+  
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  notifies :restart, 'service[calico]', :delayed
+  action [:create, :enable]
+end
+
+service 'calico' do
+  action [:start, :enable]
+end
