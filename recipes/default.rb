@@ -44,8 +44,8 @@ end
 
 ['kubelet','kube-proxy','kubectl'].each do |file|
   execute "extract_#{file}" do
-    file = "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" 
-    command  "tar -xvzf #{file} -C #{k8s_binary_dir} kubernetes/node/bin/#{file} --xform='s,.*/,,'"
+    tgz_file = "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" 
+    command  "tar -xvzf #{tgz_file} -C #{k8s_binary_dir} kubernetes/node/bin/#{file} --xform='s,.*/,,'"
     not_if { ::File.exists? "#{k8s_binary_dir}/#{file}" }
   end
   
