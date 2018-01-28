@@ -36,6 +36,13 @@ ha_minions = node['kubernetes']['minion-ha']
 is_ha_minion = false
 ha_minions.each_key {|k| is_ha_minion = true if ha_minions[k] == ip}
 
+cni_bin_dir = '/opt/cni/bin/calico'
+cni_bin = {
+  calico: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico',
+  calico_ipam: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico-ipam',
+  cni: 'https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.tgz'
+}
+
 
 directory k8s_binary_dir do
   recursive true
@@ -69,91 +76,19 @@ template "#{kubeconfig}" do
   mode '0644'
 end
 
-execute 'disable_swap' do
-  command 'swapoff -a'
-  only_if 'swapon -s | grep -qPo "\d+"'
+directory cni_bin_dir  do
+  recursive true
+  owner user
+  group user
+  mode '0755'
 end
 
-execute 'remove_swap_from_fstab' do
-  command 'sed -ri "/swap/d" /etc/fstab'
-  only_if 'grep swap /etc/fstab'
-end
-
-systemd_unit 'kubelet.service'  do
-  cmd = [
-    '/opt/kubernetes/bin/kubelet',
-    '--address=0.0.0.0',
-    "--kubeconfig=#{kubeconfig}",
-    "--cluster-domain=#{cluster_domain}",
-    "--cluster-dns=#{cluster_dns}"
-  ]
-
-  cmd << '--node-labels=ha-minion=true' if is_ha_minion
-
-  if network_driver == 'calico'
-    cmd << '--network-plugin=cni'
-    cmd << '--cni-conf-dir=/etc/cni/net.d'
-    cmd << '--cni-bin-dir=/opt/cni/bin'
+cni_bin.each_key do |k|
+  remote_file "#{cni_bin_dir}/#{::File.basename cni_bin[k]}" do
+    source cni_bin[k]
   end
-
-  content <<-EOF.gsub(/^  /,'')
-  [Unit]
-  Description=Kubelet
-  After=docker.service
-  Requires=docker.service
-   
-  [Service]
-  TimeoutStartSec=0
-  Restart=always
-  ExecStart=#{cmd.join(' ')}
-  ExecStop=/bin/kill $MAINPID
-  Restart=always
-  RestartSec=10s
-  NotifyAccess=all
-  
-  [Install]
-  WantedBy=multi-user.target
-  EOF
-  notifies :restart, 'service[kubelet]', :delayed
-  action [:create, :enable]
 end
 
-service 'kubelet' do
-  action [:start, :enable]
-end
 
-service 'kubelet' do
-  action [:start, :enable]
-end
 
-systemd_unit 'kube-proxy.service'  do
-  cmd = [
-    '/opt/kubernetes/bin/kube-proxy',
-    '--proxy-mode=iptables',
-    '--kubeconfig /opt/kubernetes/kubeconfig'
-  ]
-  content <<-EOF.gsub(/^  /,'')
-  [Unit]
-  Description=Kube-proxy
-  After=docker.service
-  Requires=docker.service
-   
-  [Service]
-  TimeoutStartSec=0
-  Restart=always
-  ExecStart=#{cmd.join(' ')}
-  ExecStop=/bin/kill $MAINPID
-  Restart=always
-  RestartSec=10s
-  NotifyAccess=all
-  
-  [Install]
-  WantedBy=multi-user.target
-  EOF
-  notifies :restart, 'service[kube-proxy]', :delayed
-  action [:create, :enable]
-end
 
-service 'kube-proxy' do
-  action [:start, :enable]
-end
