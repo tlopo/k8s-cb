@@ -1,7 +1,8 @@
-# Cookbook:: k8s_cb
-# Recipe:: default
-#
-# Copyright:: 2018, The Authors, All Rights Reserved.
+user = 'root'
+group = 'root'
+ip = node['ipaddress']
+hostname = node['hostname']
+cert_dir = node['cert_dir']
 
 ca_cert = Base64.decode64 node['ca-cert']
 ca_key = Base64.decode64 node['ca-key']

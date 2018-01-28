@@ -1,3 +1,17 @@
+user = 'root'
+group = 'root'
+ip = node['ipaddress']
+hostname = node['hostname']
+cert_dir = node['cert_dir']
+
+k8s_node_binaries_url = 'https://dl.k8s.io/v1.9.2/kubernetes-node-linux-amd64.tar.gz'
+k8s_binary_dir = '/opt/kubernetes/bin'
+kubeconfig = '/opt/kubernetes/kubeconfig'
+
+ip_in_ip_mtu = node['calico']['ip_in_ip_mtu']
+ip_in_ip_mode = node['calico']['ip_in_ip_mode']
+ip_pool = node['calico']['network']
+
 cni_bin_dir = '/opt/cni/bin/calico'
 bin = {
   calico: {
