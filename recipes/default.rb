@@ -113,3 +113,37 @@ end
 service 'kube-apiserver' do
   action [:start, :enable]
 end
+
+systemd_unit 'kube-scheduler.service'  do
+  content <<-EOF.gsub(/^  /,'')
+  [Unit]
+  Description=Kubernetes Scheduler
+  After=docker.service
+  Requires=docker.service
+   
+  [Service]
+  TimeoutStartSec=0
+  Restart=always
+  ExecStartPre=-/usr/bin/docker stop %n
+  ExecStartPre=-/usr/bin/docker rm %n
+  ExecStart=/usr/bin/docker run --rm\
+        -v #{cert_dir}:#{cert_dir} \
+        -v #{kubeconfig}:#{kubeconfig}\
+        --net host --name %n #{image} kube-scheduler\
+        --kubeconfig=#{kubeconfig} --leader-elect
+
+  ExecStop=/usr/bin/docker stop %n
+  Restart=always
+  RestartSec=10s
+  NotifyAccess=all
+  
+  [Install]
+  WantedBy=multi-user.target
+  EOF
+  notifies :restart, 'service[kube-scheduler]', :delayed
+  action [:create, :enable]
+end
+
+service 'kube-scheduler' do
+  action [:start, :enable]
+end
