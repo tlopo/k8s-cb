@@ -86,7 +86,7 @@ template "#{kubeconfig}" do
 end
 
 bin.each_key do |k|
-  directory "#{::File.dirname bin[k][dst]}"  do
+  directory "#{::File.dirname bin[k][:dst]}"  do
     recursive true
     owner user
     group user
