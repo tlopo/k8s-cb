@@ -12,7 +12,7 @@ etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:237
 
 master_vip = node['kubernetes']['master_vip'] 
 cluster_service_ip_range = node['kubernetes']['cluster_service_ip_range']
-network_driver = node['network']['driver']
+network_driver = node['network_driver']
 cluster_domain = node['kubernetes']['cluster_domain']
 cluster_dns = node['kubernetes']['cluster_dns']
 ha_minions = node['kubernetes']['minion-ha']
