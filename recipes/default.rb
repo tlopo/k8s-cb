@@ -32,6 +32,11 @@ remote_file "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" do
   source k8s_node_binaries_url
 end
 
+log 'debug file' do 
+  message "File => #{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}"
+  level :error
+end
+
 execute 'extract_kubectl' do
   file = "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" 
   command = "tar -xvzf #{file} -C #{k8s_binary_dir} kubernetes/node/bin/kubectl --xform='s,.*/,,'"
