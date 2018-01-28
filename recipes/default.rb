@@ -117,4 +117,23 @@ directory '/etc/cni/net.d' do
 end
 
 
+file '/etc/calico/calicoctl.cfg' do
+  lines = [
+    'apiVersion: projectcalico.org/v3',
+    'kind: CalicoAPIConfig',
+    'metadata:',
+    'spec:',
+     "  etcdEndpoints: #{etcd_servers}"
+  ]
 
+  if etcd_tls
+    lines << "  etcdKeyFile: #{cert_dir}/#{hostname}-key.pem"
+    lines << "  etcdCertFile: #{cert_dir}/#{hostname}-cert.pem"
+    lines << "  etcdCACertFile: #{cert_dir}/ca-cert.pem"
+  end
+
+  content lines.join("\n")
+  owner user
+  group user
+  mode '0644'
+end
