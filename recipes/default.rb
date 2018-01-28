@@ -53,6 +53,12 @@ execute 'extract_kubectl' do
   not_if { ::File.exists? "#{k8s_binary_dir}/kubectl" }
 end
 
+['kubectl'].each do |file|
+  link "/usr/bin/#{file}" do
+    to "/opt/kubernetes/bin/#{file}"
+  end
+end
+
 template "#{kubeconfig}" do 
   source 'kubeconfig.erb'
   owner user
