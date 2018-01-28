@@ -20,6 +20,7 @@ group = 'root'
 
 k8s_node_binaries_url = 'https://dl.k8s.io/v1.9.2/kubernetes-node-linux-amd64.tar.gz'
 k8s_binary_dir = '/opt/kubernetes/bin'
+kubeconfig = '/opt/kubernetes/kubeconfig'
 
 directory k8s_binary_dir do
   recursive true
@@ -41,5 +42,12 @@ execute 'extract_kubectl' do
   file = "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" 
   command  "tar -xvzf #{file} -C #{k8s_binary_dir} kubernetes/node/bin/kubectl --xform='s,.*/,,'"
   not_if { ::File.exists? "#{k8s_binary_dir}/kubectl" }
+end
+
+template "#{kubeconfig}" do 
+  source 'kubeconfig.erb'
+  owner user
+  group group
+  mode '0644'
 end
 
