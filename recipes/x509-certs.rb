@@ -3,9 +3,6 @@
 #
 # Copyright:: 2018, The Authors, All Rights Reserved.
 
-hostname = node['hostname']
-ip = node['ipaddress']
-cert_dir = node['cert_dir']
 ca_cert = Base64.decode64 node['ca-cert']
 ca_key = Base64.decode64 node['ca-key']
 serviceaccount_key = Base64.decode64 node['serviceaccount-key']

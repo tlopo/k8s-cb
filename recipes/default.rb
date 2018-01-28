@@ -12,8 +12,6 @@ service 'docker' do
   action :enable
 end
 
-include_recipe "#{cookbook_name}::x509-certs"
-
 user = 'root'
 group = 'root'
 ip = node['ipaddress']
@@ -43,4 +41,4 @@ ip_in_ip_mtu = node['calico']['ip_in_ip_mtu']
 ip_in_ip_mode = node['calico']['ip_in_ip_mode']
 ip_pool = node['calico']['network']
 
-
+include_recipe "#{cookbook_name}::x509-certs"
