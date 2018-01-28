@@ -46,7 +46,6 @@ end
 
 remote_file "#{k8s_binary_dir}/#{::File.basename(k8s_node_binaries_url)}" do 
   source k8s_node_binaries_url
-  mode '0755'
 end
 
 ['kubelet','kube-proxy','kubectl'].each do |file|
@@ -82,6 +81,7 @@ end
 bin.each_key do |k|
   remote_file bin[k][:dst] do
     source bin[k][:src]
+    mode '0755'
   end
 end
 
