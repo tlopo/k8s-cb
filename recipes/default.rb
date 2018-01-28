@@ -12,7 +12,9 @@ service 'docker' do
   action :enable
 end
 
+load "#{__dir__}/vars.rb"
 
 Chef::Log.info "DIR => #{__dir__}"
+Chef::Log.info "HOSTNAME => #{hostname}"
 
 #include_recipe "#{cookbook_name}::x509-certs"
