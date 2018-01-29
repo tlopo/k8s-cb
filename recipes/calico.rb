@@ -20,7 +20,7 @@ etcd_tls = node['etcd']['tls']
 etcd_scheme = etcd_tls ? 'https' : 'http'
 etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
 
-cni_bin_dir = '/opt/cni/bin/calico'
+cni_bin_dir = '/opt/cni/bin'
 bin = {
   calico: {
     src: 'https://github.com/projectcalico/cni-plugin/releases/download/v2.0.0/calico',
