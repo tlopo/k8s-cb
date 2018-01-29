@@ -120,6 +120,44 @@ file '/etc/calico/calicoctl.cfg' do
   mode '0644'
 end
 
+file '/etc/cni/net.d/10-calico.conf' do
+  cfg =  <<-CFG.gsub(/^ {4}/,'')
+    {
+        "name": "calico-k8s-network",
+        "cniVersion": "0.1.0",
+        "type": "calico",
+        "etcd_endpoints": "#{etcd_servers}",
+   CFG
+
+   cfg += <<-CFG.gsub(/^ {4}/,'') if etcd_tls
+        "etcd_key_file": "#{key}",
+        "etcd_cert_file": "#{cert}",
+        "etcd_ca_cert_file": "#{ca}",
+   CFG
+
+   cfg += <<-CFG.gsub(/^ {4}/,'')
+        "log_level": "debug",
+        "ipam": {
+            "type": "calico-ipam",
+            "assign_ipv4": "true",
+            "assign_ipv6": "false",
+            "ipv4_pools": ["#{ip_pool}"]
+        },
+        "policy": {
+            "type": "k8s"
+        },
+        "kubernetes": {
+            "kubeconfig": "/opt/kubernetes/kubeconfig"
+        }
+    }
+  CFG
+
+  content cfg
+  owner user
+  group user
+  mode '0644'
+end
+
 systemd_unit 'calico.service'  do
   cmd = [
     '/usr/bin/docker run --net=host --privileged --name=calico-node',
