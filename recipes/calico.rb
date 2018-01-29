@@ -3,6 +3,10 @@ group = 'root'
 ip = node['ipaddress']
 hostname = node['hostname']
 cert_dir = node['cert_dir']
+cert = "#{cert_dir}/#{hostname}-cert.pem"
+key = "#{cert_dir}/#{hostname}-key.pem"
+ca = "#{cert_dir}/ca-cert.pem"
+
 
 k8s_node_binaries_url = 'https://dl.k8s.io/v1.9.2/kubernetes-node-linux-amd64.tar.gz'
 k8s_binary_dir = '/opt/kubernetes/bin'
