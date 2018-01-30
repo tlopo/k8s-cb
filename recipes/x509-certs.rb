@@ -12,7 +12,13 @@ key_usage = 'nonRepudiation, digitalSignature, keyEncipherment'
 basic_constraints = 'CA:FALSE'
 subject = "/CN=#{hostname}"
 min_validity = 30 * 24 * 60 * 60 # 30 days
-subject_alt_name = "IP:127.0.0.1,IP:#{ip},DNS:localhost,DNS:#{hostname}"
+subject_alt_name = [
+  "IP:127.0.0.1",
+  "IP:10.255.0.1",
+  "IP:#{ip}",
+  "DNS:localhost",
+  "DNS:#{hostname}"
+]
 
 
 directory "#{cert_dir}" do 

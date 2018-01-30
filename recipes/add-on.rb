@@ -26,12 +26,12 @@ end
 ruby_block 'Create add-ons' do
   block do
     Chef::Log.info 'Wait until cluster is functional'
-    (1..10).each do
+    (1..300).each do
       `curl localhost:8080/healthz -sf`
        break if $?.success?
 
        Chef::Log.info 'Wait until cluster is functional'
-       sleep 3
+       sleep 1
     end
     Chef::Log.info 'Kubernetes is up' if $?.success?
     raise 'Cluster is not functional' unless $?.success?
