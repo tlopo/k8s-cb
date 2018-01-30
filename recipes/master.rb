@@ -179,4 +179,4 @@ service 'kube-controller-manager' do
 end
 
 
-include_recipe "#{cookbook_name}::add-on.rb" if first_master
+include_recipe "#{cookbook_name}::add-on" if first_master
