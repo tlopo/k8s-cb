@@ -20,7 +20,7 @@ masters = node['kubernetes']['master']
 first_master = masters[masters.keys.first] == node['ipaddress']
 
 network_driver = node['network_driver']
-include_recipe "#{cookbook_name}::calico" if network_driver == 'calico'
+#include_recipe "#{cookbook_name}::calico" if network_driver == 'calico'
 
 directory k8s_binary_dir do
   recursive true
