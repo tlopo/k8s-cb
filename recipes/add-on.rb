@@ -9,11 +9,16 @@ directory k8s_manifest_dir do
   mode '0755'
 end
 
-template "#{k8s_manifest_dir}/kube-dns.yaml" do 
-  source 'kube-dns.yaml.erb'
-  owner user
-  group group
-  mode '0644'
+templates = [
+  "kube-dns.yaml.erb"
+] 
+
+
+templates.each do |template|
+  template "#{k8s_manifest_dir}/#{template.gsub(/.erb$/,'')}" do 
+    source template
+    owner user
+    group group
+    mode '0644'
+  end
 end
-
-
