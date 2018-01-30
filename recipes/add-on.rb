@@ -43,8 +43,7 @@ ruby_block 'Create add-ons' do
       Chef::Log.info "Processing #{template}"
       cmd= [ "kubectl --namespace kube-system get #{k8s_object} ||",
              "kubectl replace --force -f '#{k8s_manifest_dir}/#{template}' --validate=false"].join(' ')
-      STDERR.write "#{cmd}\n" 
-      Chef::Log.warn "#{cmd}\n" 
+      Chef::Log.info"[#{cmd}\n]" 
       out = `#{cmd}`
       Chef::Log.error out unless $?.success?
       raise "#{template} failed" unless $?.success?

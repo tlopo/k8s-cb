@@ -21,6 +21,8 @@ ha_minions.each_key {|k| is_ha_minion = true if ha_minions[k] == ip}
 
 include_recipe "#{cookbook_name}::calico" if network_driver == 'calico'
 
+yum_package 'conntrack-tools'
+
 directory k8s_binary_dir do
   recursive true
   user user
@@ -61,6 +63,11 @@ end
 execute 'remove_swap_from_fstab' do
   command 'sed -ri "/swap/d" /etc/fstab'
   only_if 'grep swap /etc/fstab'
+end
+
+execute 'Change iptables FORWARD default policy' do
+  command 'iptables -P FORWARD ACCEPT'
+  only_if 'iptables-save  | grep -q "^:FORWARD DROP"'
 end
 
 systemd_unit 'kubelet.service'  do
