@@ -39,9 +39,10 @@ ruby_block 'Create add-ons' do
 
     templates.each_key do |k|
       template = k.gsub(/.erb$/,'')
+      k8s_object = templates[k]
       Chef::Log.info "Processing #{template}"
-      cmd= [ "kubectl --namespace kube-system get #{templates[k]} ||",
-             "kubectl replace --force -f '#{k8s_manifest_dir}/#{k}' --validate=false"].join(' ')
+      cmd= [ "kubectl --namespace kube-system get #{k8s_object} ||",
+             "kubectl replace --force -f '#{k8s_manifest_dir}/#{template}' --validate=false"].join(' ')
       STDERR.write "#{cmd}\n" 
       Chef::Log.warn "#{cmd}\n" 
       out = `#{cmd}`
