@@ -16,6 +16,9 @@ etcd_tls = node['etcd']['tls']
 etcd_scheme = etcd_tls ? 'https' : 'http'
 etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
 
+masters = node['kubernetes']['master']
+first_master = masters[masters.keys.first] == node['ipaddress']
+
 directory k8s_binary_dir do
   recursive true
   user user
@@ -174,3 +177,6 @@ end
 service 'kube-controller-manager' do
   action [:start, :enable]
 end
+
+
+include_recipe "#{cookbook_name}::add-on.rb" if first_master
