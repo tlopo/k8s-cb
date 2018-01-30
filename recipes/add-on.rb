@@ -10,7 +10,8 @@ directory k8s_manifest_dir do
 end
 
 templates = [
-  "kube-dns.yaml.erb"
+  'kube-dns.yaml.erb',
+  'calico-kubernetes-controller.yaml.erb'
 ] 
 
 

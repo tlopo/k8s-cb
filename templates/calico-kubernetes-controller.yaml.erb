@@ -1,0 +1,80 @@
+<%-
+ require 'base64'
+ cert_dir = node['cert_dir']
+ hostname = node['hostname']
+ etcd_tls = node['etcd']['tls']
+ etcd_scheme = etcd_tls ? 'https' : 'http'
+ #etcd_servers = node['etcd']['servers'].values.map{|v| "#{etcd_scheme}://#{v}:2379" }.join(',')
+ master_vip = node['kubernetes']['master_vip']
+ etcd_servers = "#{etcd_scheme}://#{master_vip}:2379"
+ key = Base64.encode64(File.read("#{cert_dir}/#{hostname}-key.pem")).gsub(/\n/,'') 
+ cert = Base64.encode64(File.read("#{cert_dir}/#{hostname}-cert.pem")).gsub(/\n/,'')
+ ca = Base64.encode64(File.read("#{cert_dir}/ca-cert.pem")).gsub(/\n/,'')
+-%>
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: calico-etcd-secrets
+  namespace: kube-system
+data:
+  etcd-key: <%=key%>
+  etcd-cert: <%=cert%>
+  etcd-ca: <%=ca%>
+---
+# the Calico Kubernetes controllers.
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: calico-kube-controllers
+  namespace: kube-system
+  labels:
+    k8s-app: calico-kube-controllers
+spec:
+  # Only a single instance of the this pod should be
+  # active at a time.  Since this pod is run as a Deployment,
+  # Kubernetes will ensure the pod is recreated in case of failure,
+  # removing the need for passive backups.
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      name: calico-kube-controllers
+      namespace: kube-system
+      labels:
+        k8s-app: calico-kube-controllers
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        ha-minion: 'true'
+      containers:
+        - name: calico-kube-controllers
+          # Make sure to pin this to your desired version.
+          image: quay.io/calico/kube-controllers:v2.0.0
+          env:
+            # Configure the location of your etcd cluster.
+            - name: ETCD_ENDPOINTS
+              value: <%=etcd_servers%>
+<%- if etcd_tls -%>
+            - name: ETCD_KEY_FILE
+              value: /opt/calico/ssl/etcd-key
+            - name: ETCD_CERT_FILE
+              value: /opt/calico/ssl/etcd-cert
+            - name: ETCD_CA_CERT_FILE
+              value: /opt/calico/ssl/etcd-ca
+<%- end -%>
+          volumeMounts:
+            - mountPath: /opt/calico/ssl
+              name: etcd-certs
+      volumes:
+        - name: etcd-certs
+          secret:
+            secretName: calico-etcd-secrets
