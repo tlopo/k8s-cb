@@ -18,7 +18,7 @@ subject_alt_name = [
   "IP:#{ip}",
   "DNS:localhost",
   "DNS:#{hostname}"
-]
+].join(',')
 
 
 directory "#{cert_dir}" do 
